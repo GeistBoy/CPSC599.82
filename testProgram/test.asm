@@ -16,11 +16,10 @@
 ;Test5 - *** didn't work
 ;Trying to output some sound
 test5:
-	lda	#15
-	jsr	$900e
-	lda	226
-	jsr	$900c
-	jsr	$900d
+	lda #15
+	sta	$900e
+	lda	#201
+	sta	$900c
 	jmp	test5
 
 
@@ -38,7 +37,7 @@ test4:
 ;This one is trying to read keyboard input but something wrong
 ;GETIN, $ffe4 - Get character from keyboar queue(keyboard buffer)
 test3:
-	lda	$ffe4
+	lda	$ffff
 	jsr	$ffd2
 	jmp	test3
 
