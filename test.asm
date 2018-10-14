@@ -197,6 +197,7 @@ donetest7:
 ;Beep intermidently up a scale (pause between each note)
 ;tests timing and use of different musical notes
 test6:
+<<<<<<< Updated upstream
 	cpx #$36		;check if user entered 6
 	bne test5
 	lda #15
@@ -243,6 +244,7 @@ reset135:
 	lda #135
 	sta $900c
 	jmp test6waitLoop
+
 
 
 ;============================================================
