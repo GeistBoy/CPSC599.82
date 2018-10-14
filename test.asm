@@ -50,41 +50,45 @@
 	jsr $e55f		; clear screen, then prompt user
 	lda	#'E
 	jsr	$ffd2
-	lda	#'n
+	lda	#'N
 	jsr	$ffd2
-	lda	#'t
+	lda	#'T
 	jsr	$ffd2
-	lda	#'e
+	lda	#'E
 	jsr	$ffd2
-	lda	#'r
+	lda	#'R
 	jsr	$ffd2
 	lda	#' 	
 	jsr	$ffd2
-	lda	#'a	
+	lda	#'A	
 	jsr	$ffd2
 	lda	#' 
 	jsr	$ffd2
-	lda	#'t
+	lda	#'T
 	jsr $ffd2
-	lda	#'e	
+	lda	#'E	
 	jsr	$ffd2
-	lda	#'s
+	lda	#'S
 	jsr	$ffd2
-	lda	#'t
+	lda	#'T
 	jsr	$ffd2
 	lda	#' 
 	jsr	$ffd2
-	lda	#'n
+	lda	#'N
 	jsr	$ffd2
-	lda	#'u
+	lda	#'U
 	jsr	$ffd2
-	lda	#'m
+	lda	#'M
 	jsr	$ffd2
-	lda	#'b	
+	lda	#'B	
 	jsr	$ffd2
-	lda	#'e	
+	lda	#'E	
 	jsr	$ffd2
-	lda	#'r
+	lda	#'R
+	jsr	$ffd2
+	lda	#' 
+	jsr	$ffd2
+	lda	#' 
 	jsr	$ffd2
 	lda	#' 
 	jsr	$ffd2
@@ -104,8 +108,10 @@ getTest:
 	jsr	$ffe4		;accept user input for test number 
 	cmp #0
 	beq getTest		;loop back up, user hasn't entered a test yet
+	
+	jsr	$ffd2		; print out what the user entered
+	
 	tax				;user entered number is in x now
-	inx				;sets up test number correctly
 	jmp test9		;test 9 will compare x to test # to see if it should execute, pass execution on if not
 
 	
@@ -115,7 +121,6 @@ getTest:
 ;Move ascii character around randomly (smooth discrete movement along coordinate grids)
 ;simulate non-player character movement
 test9:
-	dex
 	cpx #$39		;check if user entered 9
 	bne test8
 	jmp	donetest9
@@ -127,7 +132,6 @@ donetest9:
 ;Test8
 ;Accelerated gravity effect
 test8:
-	dex
 	cpx #$38		;check if user entered 8
 	bne test7
 	jmp	donetest8
@@ -139,7 +143,6 @@ donetest8:
 ;Test7
 ;Test gravity effect, have one ascii character fall at one constant speed until it 'hits' a floor
 test7:
-	dex
 	cpx #$37		;check if user entered 7
 	bne test6
 	jmp	donetest7
@@ -152,7 +155,6 @@ donetest7:
 ;Beep intermidently up a scale (pause between each note)
 ;tests timing and use of different musical notes
 test6:
-	dex
 	cpx #$36		;check if user entered 6
 	bne test5
 	jmp	donetest6
@@ -164,7 +166,6 @@ donetest6:
 ;Test5
 ;Output one note continuously
 test5:
-	dex
 	cpx #$35		;check if user entered 5
 	bne test4
 	lda #15		;volume set to level 15 (volume is in 0-15)
@@ -178,7 +179,6 @@ test5:
 ;Test 4
 ;Print character "X" at a user specified position (enter x then y)
 test4:
-	dex
 	cpx #$34		;check if user entered 4
 	bne test3
 	jsr $e55f	; clear screen
@@ -215,7 +215,6 @@ donetest4:
 ;Test 3
 ;Get input characters from the keyboard and output on the screen
 test3:
-	dex
 	cpx #$33		;check if user entered 3
 	bne test2
 	jsr $e55f	; clear screen
@@ -230,7 +229,6 @@ mylabel:
 ;test display
 ;CHROUT $ffd2, Output character to channel
 test2:
-	dex
 	cpx #$32		;check if user entered 2
 	bne test1
 	jsr	$e55f
@@ -266,7 +264,6 @@ donetest2:
 ;Test 1
 ;Flash the screen by changing the Screen and border color register
 test1:
-	dex
 	cpx #$31		;check if user entered 1
 	bne test0
 	inc	$900f
