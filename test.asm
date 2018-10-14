@@ -22,21 +22,9 @@
 ;=============================    TO DO    =============================
 ;Fix test 4
 ;Implement test 8
-;Implement test 9
-;Implement test 0
-
-
-
-
-
-
-
-
-
-
-
-
-
+;Fix test9 - Random is not good enough
+;Fix test0 - 1. W key is not working
+;			 2. S key is working incorrectly over line 12
 
 
 
@@ -112,8 +100,6 @@ getTest:
 	tax				;user entered number is in x now
 	jmp test9		;test 9 will compare x to test # to see if it should execute, pass execution on if not
 
-	
-
 ;============================================================
 ;Test9
 ;Move ascii character around randomly (smooth discrete movement along coordinate grids)
@@ -121,10 +107,24 @@ getTest:
 test9:
 	cpx #$39		;check if user entered 9
 	bne test8
-	jmp	donetest9
-donetest9:
-	jmp donetest9	;is an infinite loop. Will be reached when user selected test is complete
+	jsr $e55f		; clear screen
 
+test9etKeyInput:
+	lda #0
+	jsr	$ffe4		;accept user input for test number 
+	cmp #'V			; Branch to the coressponding key
+	bne test9etKeyInput
+
+test9Random:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2
+	lda #21				
+	sbc $D1				;subtract 21 into D1 to go to the last line
+	sta $D1				;store it into D1
+	lda #'X
+	jsr $ffd2
+	jmp test9etKeyInput
 
 ;============================================================
 ;Test8
@@ -244,6 +244,7 @@ reset135:
 	sta $900c
 	jmp test6waitLoop
 
+
 ;============================================================
 ;Test5
 ;Output one note continuously
@@ -356,7 +357,61 @@ test1:
 ;Move ascii character around with w, a, s and d keys
 ;simulate player movement
 test0:
-	jmp	donetest0
+	jsr $e55f						; clear screen
+	ldx #9							;x = 9
+	ldy #0							;y = 0
+	lda #9					
+	sta $D3							; D3 = 9 = middle of the screen, where D3 is the cursor of the line
+	lda #'X							; print letter D
+	jsr $ffd2
 
-donetest0:
-	jmp donetest0	;is an infinite loop. Will be reached when user selected test is complete
+getKeyInput:
+	lda #0
+	jsr	$ffe4		;accept user input for test number 
+
+	cmp #'W			; Branch to the coressponding key
+	beq wKey
+	cmp #'A
+	beq aKey
+	cmp #'S
+	beq sKey
+	cmp #'D
+	beq dKey
+	bne getKeyInput	;Invalid input
+
+wKey:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2
+	lda #21				
+	sbc $D1				;add 21 into D1 to go to the next line
+	sta $D1				;store it into D1
+	lda #'X
+	jsr $ffd2
+	jmp getKeyInput
+aKey:
+	dec $D3
+	lda #' 
+	jsr $ffd2
+	dec $D3
+	dec $D3
+	lda #'X
+	jsr $ffd2
+	jmp getKeyInput
+sKey:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2
+	lda #21				
+	adc $D1				;add 21 into D1 to go to the next line
+	sta $D1				;store it into D1
+	lda #'X
+	jsr $ffd2
+	jmp getKeyInput
+dKey:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2		
+	lda #'X			; print the character
+	jsr $ffd2
+	jmp getKeyInput

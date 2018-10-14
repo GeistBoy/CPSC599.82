@@ -1,9 +1,16 @@
-# CPSC599.82
-This is a project for CPSC 599.92 - Retro Games
+# CPSC599.82 - Group 15
 
-usage for test program:
-dasm test.asm -otest.prg
+Test programs CPSC 599.82
 
-then load the test.prg file into the xvic emulator,
-then type "sys 4352", which means $1100, then press enter,
-Enjoy! 
+	when run this program 
+
+	1.		Flash the screen by changing the Screen and border color register
+	2.		Print out "HELLO WORLD!" on the screen
+	3.		Get input characters from the keyboard and output on the screen
+	4.		Print character "X" at a user specified position (enter x then y)
+	5.		Output one note continuously
+	6.		Beep intermidently up a scale (pause between each note)
+	7.		Test gravity effect, have one ascii character fall at one constant speed until it 'hits' a floor
+	8.		Accelerating gravity effect
+	9.		Move ascii character around randomly (smooth discrete movement along coordinate grids)
+	0.		Move ascii character around with w, a, s and d keys
