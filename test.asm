@@ -182,29 +182,36 @@ test4:
 	cpx #$34		;check if user entered 4
 	bne test3
 	jsr $e55f	; clear screen
+;	lda #$0
+;	sta $D5
 getx:
 	lda #$0		; reset accumulator
-	jsr	$ffe4;	; get user to enter a character
+	jsr	$ffcf;	; get user to enter a character
 	cmp $00		; if no character (x position) has been entered
 	beq getx
-	sbc $30		; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
+	clc
+	sbc #$29		; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
 	adc	$D3		; $D3 is cursor position on line
+	sta $D3
 gety:
 	lda #$0		; reset accumulator
-	jsr	$ffe4;	; get user to enter a character
+	jsr	$ffcf;	; get user to enter a character
 	cmp $00		; if no character (x position) has been entered
 	beq gety
-	sbc $30		; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
+	clc
+	sbc $29		; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
 	tax			; transfer registers A to X
-	lda #21
+	;lda #21
 addlines:
-	adc	$D3		; $D3 is cursor position on line
+	adc	$D5		; $D3 is cursor position on line
 	dex
 	bne addlines
-linesadded:
-	adc	$D3		; $D3 is cursor position on line
-	lda $D5		; current line length
 	sta $D3
+linesadded:
+	;adc	$D3		; $D3 is cursor position on line
+	
+	lda $D5		; current line length
+	;
 	lda #$40
 	jsr	$ffd2
 	jmp	donetest4
