@@ -102,7 +102,7 @@
 	; jsr $ffd2
 	; lda #'
 	; jsr $ffd2
-	jmp test7
+	jmp test6
 
 getTest:
 	; lda #0
@@ -206,10 +206,49 @@ donetest7:
 ;Beep intermidently up a scale (pause between each note)
 ;tests timing and use of different musical notes
 test6:
-	dex
-	cpx #$36		;check if user entered 6
-	bne test5
-	jmp	donetest6
+	; dex
+	; cpx #$36		;check if user entered 6
+	; bne test5
+	; jmp	donetest6
+	ldx #0
+	stx $900e
+	ldy #0
+	lda $135
+	sta $900c
+	jmp test6Note
+test6waitLoop:							;a waitLoop of 500ms
+	iny
+	cpy $200
+	bne test6waitLoop
+	ldy $0
+test6secondLoop:
+	iny
+	cpy $200
+	bne	test6secondLoop
+	ldy $0
+test6thirdLoop:
+	iny
+	cpy $200
+	bne test6thirdLoop
+	ldy $0
+test6fourthLoop:
+	iny
+	cpy $200
+	bne test6fourthLoop
+	ldy $0
+test6fifthLoop:
+	iny 
+	cpy $200
+	bne test6fifthLoop
+test6Note:
+	lda #1					
+	adc $900e
+	sta $900e					;increment the volume at its address by 1
+	lda #2						
+	adc $900c
+	sta	$900c					;increase the note by 2 
+	jmp test6waitLoop
+	
 donetest6:
 	jmp donetest6	;is an infinite loop. Will be reached when user selected test is complete
 
