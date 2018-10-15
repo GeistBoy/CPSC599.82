@@ -133,7 +133,8 @@ test8:
 	cpx #$38		;check if user entered 8
 	bne test7
 	jsr $e55f		; clear screen
-	ldx #0							;x = 0
+	lda #1
+	pha				;push 1 (velocity) to stack
 	lda #10							
 	sta $D3							; D3 = 10 = middle of the screen
 	lda #'D							; print letter D
@@ -148,29 +149,27 @@ test8waitLoop:							;a waitLoop of 500ms
 	bne	test8waitLoop
 	tax
 test8loop:
-	txa					;transfer x to a
-	asl					;double value in a
-	tax					;transfer a to x (doubled x)
-	cpx #20				;compare x with 20
-	bpl donetest8		;branch plus (when x is bigger than 20)
-	pha					; push accumulator to stack (still contains same value as doubled x)
 	dec $D3				
 	lda #'				;erase what has just been printed
 	jsr $ffd2
+	pla					;get velocity off stack
+	asl					;double velocity value 
+	pha					;store velocity on stack
+	cmp #16				;compare velocity with 16
+	beq donetest8		;branch plus (when x is bigger than 20)
+	pla					;pull accumulator from stack (get velocity)
 moveDownLoop:
+	tax					;remaining velocity (for this move) now in x
 	lda #21				
 	adc $D1				;add 21 into D1 to go to the next line
 	sta $D1				;store it into D1
-	
-	pla					;pull accumulator from stack
+	txa					;velocity back in a
 	sbc #1
-	pha
 	cmp #0				; while still more lines to descend
-	bpl moveDownLoop
+	bne moveDownLoop
 	
 	lda #'D				;print D again
 	jsr $ffd2
-	txa
 	ldx #0
 	ldy #0
 	jmp test8waitLoop		;go to 500ms waitLoop
