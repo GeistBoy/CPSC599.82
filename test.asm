@@ -103,28 +103,24 @@ getTest:
 ;============================================================
 ;Test9
 ;Move ascii character around randomly (smooth discrete movement along coordinate grids)
-;simulate non-player character movement
+;simulate non-player character movement when 'N' key is pressed
 test9:
-	cpx #$39		;check if user entered 9
-	bne test8
-	jsr $e55f		; clear screen
+    cpx #$39        ;check if user entered 9
+    bne test8
+    jsr $e55f        ; clear screen
 
 test9etKeyInput:
-	lda #0
-	jsr	$ffe4		;accept user input for test number 
-	cmp #'V			; Branch to the coressponding key
-	bne test9etKeyInput
+    lda #0
+    jsr    $ffe4        ;accept user input for test number 
+    cmp #'N            ;Next step
+    bne test9etKeyInput
 
-test9Random:
-	dec $D3			; erase the character
-	lda #' 
-	jsr $ffd2
-	lda #21				
-	sbc $D1				;subtract 21 into D1 to go to the last line
-	sta $D1				;store it into D1
-	lda #'X
-	jsr $ffd2
-	jmp test9etKeyInput
+    dec $D3            ; erase the character
+    lda #' 
+    jsr $ffd2
+    lda #'X            ; print the character
+    jsr $ffd2
+    jmp test9etKeyInput
 
 ;============================================================
 ;Test8
@@ -400,8 +396,9 @@ wKey:
 	dec $D3			; erase the character
 	lda #' 
 	jsr $ffd2
-	lda #21				
-	sbc $D1				;add 21 into D1 to go to the next line
+	sed
+	lda $D1				;D5 is current line length
+	sbc #$13				;add 21 into D1 to go to the next line
 	sta $D1				;store it into D1
 	lda #'X
 	jsr $ffd2
