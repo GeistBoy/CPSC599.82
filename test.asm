@@ -138,7 +138,9 @@ donetest8:
 ;Test gravity effect, have one ascii character fall at one constant speed until it 'hits' a floor
 test7:
 	cpx #$37		;check if user entered 7
-	bne test6
+	sec
+	bne tenthLoop
+runtest7:
 	jsr $e55f		; clear screen
 	ldx #0							;x = 0
 	lda #9							
@@ -146,9 +148,9 @@ test7:
 	lda #'D							; print letter D
 	jsr $ffd2
 	jmp test7loop					;go to test7loop
-waitLoop:							;a waitLoop of 500ms
+waitLoop:							;a waitLoop of 500ms	
 	iny
-	cpy $200
+	cpy $00
 	bne waitLoop
 	ldy $0
 secondLoop:
@@ -170,6 +172,87 @@ fifthLoop:
 	iny 
 	cpy $200
 	bne fifthLoop
+		
+sixthLoop:							;a waitLoop of 500ms	
+	iny
+	cpy $00
+	bne sixthLoop
+	ldy $0
+seventhLoop:
+	iny
+	cpy $200
+	bne	seventhLoop
+	ldy $0
+eigthLoop:
+	iny
+	cpy $200
+	bne eigthLoop
+	ldy $0
+ninthLoop:
+	iny
+	cpy $200
+	bne ninthLoop
+	clc
+	ldy $0
+
+tenthLoop:
+	bcs test6
+	iny 
+	cpy $200
+	bne tenthLoop
+	
+	
+eleventhLoop:							;a waitLoop of 500ms	
+	iny
+	cpy $200
+	bne eleventhLoop
+	ldy $0
+twelfthLoop:
+	iny
+	cpy $200
+	bne	twelfthLoop
+	ldy $0
+thirteenthLoop:
+	iny
+	cpy $200
+	bne thirteenthLoop
+	ldy $0
+fourteenthLoop:
+	iny
+	cpy $200
+	bne fourteenthLoop
+	ldy $0
+fifteenthLoop:
+	iny 
+	cpy $200
+	bne fifteenthLoop
+	ldy $0	
+sixteenthLoop:							;a waitLoop of 500ms	
+	iny
+	cpy $00
+	bne sixteenthLoop
+	ldy $0
+seventeenthLoop:
+	iny
+	cpy $200
+	bne	seventeenthLoop
+	ldy $0
+eigteenthLoop:
+	iny
+	cpy $200
+	bne eigteenthLoop
+	ldy $0
+ninteenthLoop:
+	iny
+	cpy $200
+	bne ninteenthLoop
+	ldy $0
+twentiethLoop:
+	iny 
+	cpy $200
+	bne twentiethLoop
+	
+	
 test7loop:
 	inx
 	cpx #13				;compare x with 13, aka falling down 13 lines
@@ -396,9 +479,9 @@ wKey:
 	dec $D3			; erase the character
 	lda #' 
 	jsr $ffd2
-	sed
+	;sed
 	lda $D1				;D5 is current line length
-	sbc #$13				;add 21 into D1 to go to the next line
+	sbc $D5			;subtract line length from position to go up one line 
 	sta $D1				;store it into D1
 	lda #'X
 	jsr $ffd2
