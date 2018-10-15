@@ -12,7 +12,7 @@
 ;	8.		Accelerating gravity effect
 ;	9.		Move ascii character around randomly (smooth discrete movement along coordinate grids)
 ;	0.		Move ascii character around with w, a, s and d keys
-
+;	11 		Allow user to input the correspondent test case
 
 
 
@@ -32,7 +32,8 @@
 ;Start of the test programs
 	processor 6502	;pseudo code for dasm to indicate
 	org	$1100		;Start point of this program in the memory (4352 in decimal)
-	
+
+testSelect	
 	jsr $e55f		; clear screen, then prompt user
 	lda	#'E
 	jsr	$ffd2
@@ -124,13 +125,54 @@ test9etKeyInput:
 
 ;============================================================
 ;Test8
-;Accelerated gravity effect
+;Accelerated gravity effect (use stack to store velocity?)
 test8:
 	cpx #$38		;check if user entered 8
 	bne test7
-	jmp	donetest8
+	jsr $e55f		; clear screen
+	lda #1
+	pha				;push 1 (velocity) to stack
+	lda #10							
+	sta $D3							; D3 = 10 = middle of the screen
+	lda #'D							; print letter D
+	jsr $ffd2
+	jmp test8loop					;go to test8loop
+test8waitLoop:							;a waitLoop of 500ms
+	inx
+	cpx $50
+	bne test8waitLoop
+	iny
+	cpy $4
+	bne	test8waitLoop
+	tax
+test8loop:
+	dec $D3				
+	lda #'				;erase what has just been printed
+	jsr $ffd2
+	pla					;get velocity off stack
+	asl					;double velocity value 
+	pha					;store velocity on stack
+	cmp #16				;compare velocity with 16
+	beq donetest8		;branch plus (when x is bigger than 20)
+	pla					;pull accumulator from stack (get velocity)
+moveDownLoop:
+	tax					;remaining velocity (for this move) now in x
+	lda #21				
+	adc $D1				;add 21 into D1 to go to the next line
+	sta $D1				;store it into D1
+	txa					;velocity back in a
+	sbc #1
+	cmp #0				; while still more lines to descend
+	bne moveDownLoop
+	
+	lda #'D				;print D again
+	jsr $ffd2
+	ldx #0
+	ldy #0
+	jmp test8waitLoop		;go to 500ms waitLoop
 donetest8:
 	jmp donetest8	;is an infinite loop. Will be reached when user selected test is complete
+
 
 
 ;============================================================
