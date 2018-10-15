@@ -261,39 +261,55 @@ test5:
 
 ;==============================================================
 ;Test 4
-;Print character "X" at a user specified position (enter x then y)
+;Print character "X" at a user specified position (enter x, press "Enter" key, then enter y)
 test4:
 	cpx #$34		;check if user entered 4
 	bne test3
 	jsr $e55f	; clear screen
+	lda #$0
+	sta $D3
 getx:
 	lda #$0		; reset accumulator
-	jsr	$ffe4;	; get user to enter a character
+	jsr	$ffcf;	; get user to enter a character
 	cmp $00		; if no character (x position) has been entered
 	beq getx
-	sbc $30		; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
-	adc	$D3		; $D3 is cursor position on line
+	sed			;set decimal flag
+	sbc #$29	; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
+	;adc	$D3			; $D3 is cursor position on line
+	sta $D3
+	
+	lda #$40
+	jsr	$ffd2	;have to print out character at x value on current line in order to allow user to enter second input
 gety:
 	lda #$0		; reset accumulator
-	jsr	$ffe4;	; get user to enter a character
+	jsr	$ffcf;	; get user to enter a character
 	cmp $00		; if no character (x position) has been entered
 	beq gety
-	sbc $30		; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
-	tax			; transfer registers A to X
-	lda #21
+	sed			
+	sbc #$29	; decrement user ascii character by $30 => user entered 5 then A now stores 5, user entered 2 then A now stores 2 etc...
+	tax			; transfer registers A to X in order to decrement in addlines loop
+	lda $D3		
+	sbc #$2		;Subract by 2 to accomodate for printed character and shifted cursor
 addlines:
-	adc	$D3		; $D3 is cursor position on line
+	sed
+	adc	$D5		; $D5 is current line length, adding it is equivalent to creating another line
+;	sbc #$2
 	dex
-	bne addlines
-linesadded:
-	adc	$D3		; $D3 is cursor position on line
-	lda $D5		; current line length
 	sta $D3
+	bne addlines
+	;sbc $D3
+	
+linesadded:
+	;adc	$D3		; $D3 is cursor position on line
+	
+;	lda $D5		; current line length
+	;
 	lda #$40
 	jsr	$ffd2
 	jmp	donetest4
 donetest4:
 	jmp donetest4	;is an infinite loop. Will be reached when user selected test is complete
+
 
 ;=============================================================
 ;Test 3
