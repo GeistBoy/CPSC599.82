@@ -21,24 +21,10 @@
 
 ;=============================    TO DO    =============================
 ;Fix test 4
-;Implement test 6
-;Implement test 7
 ;Implement test 8
-;Implement test 9
-;Implement test 0
-
-
-
-
-
-
-
-
-
-
-
-
-
+;Fix test9 - Random is not good enough
+;Fix test0 - 1. W key is not working
+;			 2. S key is working incorrectly over line 12
 
 
 
@@ -114,8 +100,6 @@ getTest:
 	tax				;user entered number is in x now
 	jmp test9		;test 9 will compare x to test # to see if it should execute, pass execution on if not
 
-	
-
 ;============================================================
 ;Test9
 ;Move ascii character around randomly (smooth discrete movement along coordinate grids)
@@ -123,18 +107,73 @@ getTest:
 test9:
 	cpx #$39		;check if user entered 9
 	bne test8
-	jmp	donetest9
-donetest9:
-	jmp donetest9	;is an infinite loop. Will be reached when user selected test is complete
+	jsr $e55f		; clear screen
 
+test9etKeyInput:
+	lda #0
+	jsr	$ffe4		;accept user input for test number 
+	cmp #'V			; Branch to the coressponding key
+	bne test9etKeyInput
+
+test9Random:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2
+	lda #21				
+	sbc $D1				;subtract 21 into D1 to go to the last line
+	sta $D1				;store it into D1
+	lda #'X
+	jsr $ffd2
+	jmp test9etKeyInput
 
 ;============================================================
 ;Test8
-;Accelerated gravity effect
+;Accelerated gravity effect (use stack to store velocity?)
 test8:
 	cpx #$38		;check if user entered 8
 	bne test7
-	jmp	donetest8
+	jsr $e55f		; clear screen
+	ldx #0							;x = 0
+	lda #10							
+	sta $D3							; D3 = 10 = middle of the screen
+	lda #'D							; print letter D
+	jsr $ffd2
+	jmp test8loop					;go to test8loop
+test8waitLoop:							;a waitLoop of 500ms
+	inx
+	cpx $50
+	bne test8waitLoop
+	iny
+	cpy $4
+	bne	test8waitLoop
+	tax
+test8loop:
+	txa					;transfer x to a
+	asl					;double value in a
+	tax					;transfer a to x (doubled x)
+	cpx #20				;compare x with 20
+	bpl donetest8		;branch plus (when x is bigger than 20)
+	pha					; push accumulator to stack (still contains same value as doubled x)
+	dec $D3				
+	lda #'				;erase what has just been printed
+	jsr $ffd2
+moveDownLoop:
+	lda #21				
+	adc $D1				;add 21 into D1 to go to the next line
+	sta $D1				;store it into D1
+	
+	pla					;pull accumulator from stack
+	sbc #1
+	pha
+	cmp #0				; while still more lines to descend
+	bpl moveDownLoop
+	
+	lda #'D				;print D again
+	jsr $ffd2
+	txa
+	ldx #0
+	ldy #0
+	jmp test8waitLoop		;go to 500ms waitLoop
 donetest8:
 	jmp donetest8	;is an infinite loop. Will be reached when user selected test is complete
 
@@ -145,7 +184,37 @@ donetest8:
 test7:
 	cpx #$37		;check if user entered 7
 	bne test6
-	jmp	donetest7
+	jsr $e55f		; clear screen
+	ldx #0							;x = 0
+	lda #9							
+	sta $D3							; D3 = 9 = middle of the screen
+	lda #'D							; print letter D
+	jsr $ffd2
+	jmp test7loop					;go to test7loop
+test7waitLoop:							;a waitLoop of 500ms
+	inx
+	cpx $50
+	bne test7waitLoop
+	iny
+	cpy $4
+	bne	test7waitLoop
+	tax
+test7loop:
+	inx
+	cpx #13				;compare x with 13, aka falling down 13 lines
+	beq donetest7
+	dec $D3				
+	lda #'				;erase what has just been printed
+	jsr $ffd2
+	lda #21				
+	adc $D1				;add 21 into D1 to go to the next line
+	sta $D1				;store it into D1
+	lda #'D				;print D again
+	jsr $ffd2
+	txa
+	ldx #0
+	ldy #0
+	jmp test7waitLoop		;go to 500ms waitLoop
 donetest7:
 	jmp donetest7	;is an infinite loop. Will be reached when user selected test is complete
 
@@ -157,9 +226,50 @@ donetest7:
 test6:
 	cpx #$36		;check if user entered 6
 	bne test5
-	jmp	donetest6
-donetest6:
-	jmp donetest6	;is an infinite loop. Will be reached when user selected test is complete
+	lda #15
+	sta $900e		;set volume
+	lda #135
+	sta $900c
+	jmp test6Note
+test6waitLoop:							;a waitLoop of 500ms
+	inx
+	cpx $200
+	bne test6waitLoop
+	iny
+	cpy $4
+	bne	test6waitLoop
+test6Note:
+	ldx #0			;counter (0-200)
+	ldy #0			;counter (0-20, resets x for each increment)
+	lda $900c
+	cmp #159
+	beq add4
+	cmp #183
+	beq add8
+	cmp #191
+	beq add4
+	cmp #195
+	beq reset135
+	adc #12
+	sta $900c
+	jmp test6waitLoop
+add4:
+	adc #4
+	sta $900c
+	jmp test6waitLoop
+add8:
+	adc #8
+	sta $900c
+	jmp test6waitLoop
+add12:
+	adc #12
+	sta $900c
+	jmp test6waitLoop
+reset135:
+	lda #135
+	sta $900c
+	jmp test6waitLoop
+
 
 
 ;============================================================
@@ -274,7 +384,61 @@ test1:
 ;Move ascii character around with w, a, s and d keys
 ;simulate player movement
 test0:
-	jmp	donetest0
+	jsr $e55f						; clear screen
+	ldx #9							;x = 9
+	ldy #0							;y = 0
+	lda #9					
+	sta $D3							; D3 = 9 = middle of the screen, where D3 is the cursor of the line
+	lda #'X							; print letter D
+	jsr $ffd2
 
-donetest0:
-	jmp donetest0	;is an infinite loop. Will be reached when user selected test is complete
+getKeyInput:
+	lda #0
+	jsr	$ffe4		;accept user input for test number 
+
+	cmp #'W			; Branch to the coressponding key
+	beq wKey
+	cmp #'A
+	beq aKey
+	cmp #'S
+	beq sKey
+	cmp #'D
+	beq dKey
+	bne getKeyInput	;Invalid input
+
+wKey:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2
+	lda #21				
+	sbc $D1				;add 21 into D1 to go to the next line
+	sta $D1				;store it into D1
+	lda #'X
+	jsr $ffd2
+	jmp getKeyInput
+aKey:
+	dec $D3
+	lda #' 
+	jsr $ffd2
+	dec $D3
+	dec $D3
+	lda #'X
+	jsr $ffd2
+	jmp getKeyInput
+sKey:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2
+	lda #21				
+	adc $D1				;add 21 into D1 to go to the next line
+	sta $D1				;store it into D1
+	lda #'X
+	jsr $ffd2
+	jmp getKeyInput
+dKey:
+	dec $D3			; erase the character
+	lda #' 
+	jsr $ffd2		
+	lda #'X			; print the character
+	jsr $ffd2
+	jmp getKeyInput
