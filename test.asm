@@ -102,8 +102,8 @@ getTest:
 
 ;============================================================
 ;Test9
-;Move ascii character around randomly (smooth discrete movement along coordinate grids)
-;simulate non-player character movement when 'N' key is pressed
+;Move ascii character horizontally across screen when user presses 'N' key
+
 test9:
     cpx #$39        ;check if user entered 9
     bne test8
